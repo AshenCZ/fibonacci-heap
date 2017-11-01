@@ -1,3 +1,8 @@
+#pragma once
+
+#ifndef HOJDAR_FIBHEAP_H
+#define HOJDAR_FIBHEAP_H
+
 template <typename T>
 class CyclicList {
    public:
@@ -72,3 +77,5 @@ class CyclicList {
 
 template <typename Key, typename Value>
 class FibonacciHeap {};
+
+#endif
