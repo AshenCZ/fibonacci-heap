@@ -1,5 +1,5 @@
 #include <iostream>
-#include <gtest\gtest.h>
+#include <gtest/gtest.h>
 
 int main(int argc, wchar_t** argv) {
 	// Google test

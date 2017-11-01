@@ -1,73 +1,74 @@
 template <typename T>
 class CyclicList {
-public:
-	struct Node {
-		Node *next;
-		Node *prev;
-		T value;
-	};
+   public:
+    struct Node {
+        Node* next;
+        Node* prev;
+        T value;
 
-private:
-	Node *start;
+        explicit Node(const T val) : next(nullptr), prev(nullptr), value(val){};
+    };
 
-	size_t count;
+   private:
+    Node* start;
 
-	Node* end() const {
-		if (start)
-			return start->prev;
-		else
-			return nullptr;
-	}
+    size_t count;
 
-public:
-	const Node* head() {
-		return start;
-	}
+    Node* end() const {
+        if (start)
+            return start->prev;
+        else
+            return nullptr;
+    }
 
-	const Node* tail() {
-		return end();
-	}
+   public:
+    CyclicList() : start(nullptr), count(0){};
 
-	size_t size() const { return count; }
+    const Node* head() {
+        return start;
+    }
 
-	void pushBack(const T value) {
-		if (start) {
-			Node *newItem = new Node(value);
-			newItem->prev = end();
-			newItem->next = start();
-			end()->next = newItem;
-			start->prev = newItem;
-		}
-		else {
-			start = new Node(value);
-			start->next = start;
-			start->prev = start;
-		}
-		count++;
-	}
+    const Node* tail() {
+        return end();
+    }
 
-	void merge(CyclicList& from) {
-		if (start && from) {
-			this.count += from.count;
-			this.start->prev = from.end();
-			from.end()->next = this.start;
-			this.end()->next = from.start;
-			from.start->prev = this.end();
-		}
-		else if (start && !from) {
-			return;
-		}
-		else {
-			this.start = from.start;
-			this.count = from.count;
-		}
+    size_t size() const {
+        return count;
+    }
 
-		from.start = nullptr;
-		from.count = 0;		
-	}
+    void pushBack(const T value) {
+        if (start) {
+            Node* newItem = new Node(value);
+            newItem->prev = end();
+            newItem->next = start;
+            end()->next = newItem;
+            start->prev = newItem;
+        } else {
+            start = new Node(value);
+            start->next = start;
+            start->prev = start;
+        }
+        count++;
+    }
+
+    void merge(CyclicList& from) {
+        if (start && from.start) {
+            this->count += from.count;
+            this->start->prev = from.end();
+            from.end()->next = this->start;
+            this->end()->next = from.start;
+            from.start->prev = this->end();
+        } else if (start && !from.start) {
+            return;
+        } else {
+            this->start = from.start;
+            this->count = from.count;
+        }
+
+        from.start = nullptr;
+        from.count = 0;
+    }
 };
 
 template <typename Key, typename Value>
-class FibonacciHeap {
-
-};
+class FibonacciHeap {};
