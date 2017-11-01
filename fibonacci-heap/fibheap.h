@@ -59,10 +59,11 @@ class CyclicList {
     void merge(CyclicList& from) {
         if (start && from.start) {
             this->count += from.count;
+            Node *end = this->end();
             this->start->prev = from.end();
             from.end()->next = this->start;
-            this->end()->next = from.start;
-            from.start->prev = this->end();
+            end->next = from.start;
+            from.start->prev = end;
         } else if (start && !from.start) {
             return;
         } else {

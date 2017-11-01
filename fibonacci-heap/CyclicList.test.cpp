@@ -61,6 +61,7 @@ TEST(merge, all_values_inside) {
 
     list.merge(list2);
 
+    EXPECT_EQ(list.size(), 6);
     const CyclicList<int>::Node *cur = list.head();
     int i = 0;
     while (cur != list.tail() && i < 7) {
