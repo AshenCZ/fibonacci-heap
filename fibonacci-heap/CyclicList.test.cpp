@@ -130,3 +130,39 @@ TEST(merge, merge_from_empty) {
     EXPECT_EQ(list.head()->value, 4);
     EXPECT_EQ(list.tail()->value, 6);
 }
+
+TEST(merge, merge_from_size1) {
+    int vals[3] = {4, 5, 6};
+
+    CyclicList<int> list2;
+    list2.pushBack(1);
+
+    CyclicList<int> list;
+    for (int i = 0; i < 3; ++i) {
+        list.pushBack(vals[i]);
+    }
+
+    list.merge(list2);
+
+    EXPECT_EQ(list.size(), 4);
+    EXPECT_EQ(list.head()->value, 4);
+    EXPECT_EQ(list.tail()->value, 1);
+}
+
+TEST(merge, merge_to_size1) {
+    int vals[3] = {4, 5, 6};
+
+    CyclicList<int> list2;
+    list2.pushBack(1);
+
+    CyclicList<int> list;
+    for (int i = 0; i < 3; ++i) {
+        list.pushBack(vals[i]);
+    }
+
+    list2.merge(list);
+
+    EXPECT_EQ(list2.size(), 4);
+    EXPECT_EQ(list2.head()->value, 1);
+    EXPECT_EQ(list2.tail()->value, 6);
+}
