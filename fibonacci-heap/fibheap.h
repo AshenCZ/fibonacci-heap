@@ -110,6 +110,7 @@ class FibonacciHeap {
     }
 
     static void deleteMyselfFromSons(FibNode* x) {
+        // \todo NullPtr exception here
         FibNode* prevBro = x->prevBro;
         FibNode* nextBro = x->nextBro;
         prevBro->nextBro = nextBro;
@@ -158,6 +159,7 @@ class FibonacciHeap {
     void insert(std::pair<int, int> newNode) {
         FibNode* newTree = new FibNode(newNode.first, newNode.second);
         appendToList(firstTree, newTree);
+       // \todo Update Cached Min
     }
 
     int extractMin() {
@@ -169,7 +171,8 @@ class FibonacciHeap {
     }
 
     void decrease(int idToDecrease, int newValue) {
-        FibNode* nodeToDec = findById(idToDecrease);
+       // \todo Update Cached Min 
+       FibNode* nodeToDec = findById(idToDecrease);
         nodeToDec->key = newValue;
         FibNode* parent = nodeToDec->parent;
         if (parent->key > newValue) {
