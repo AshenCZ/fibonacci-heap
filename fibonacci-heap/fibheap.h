@@ -3,79 +3,7 @@
 #ifndef HOJDAR_FIBHEAP_H
 #define HOJDAR_FIBHEAP_H
 
-template <typename T>
-class CyclicList {
-   public:
-    struct Node {
-        Node* next;
-        Node* prev;
-        T value;
-
-        explicit Node(const T val) : next(nullptr), prev(nullptr), value(val){};
-    };
-
-   private:
-    Node* start;
-
-    size_t count;
-
-    Node* end() const {
-        if (start)
-            return start->prev;
-        else
-            return nullptr;
-    }
-
-   public:
-    CyclicList() : start(nullptr), count(0){};
-
-    const Node* head() {
-        return start;
-    }
-
-    const Node* tail() {
-        return end();
-    }
-
-    size_t size() const {
-        return count;
-    }
-
-    void pushBack(const T value) {
-        if (start) {
-            Node* newItem = new Node(value);
-            newItem->prev = end();
-            newItem->next = start;
-            end()->next = newItem;
-            start->prev = newItem;
-        } else {
-            start = new Node(value);
-            start->next = start;
-            start->prev = start;
-        }
-        count++;
-    }
-
-    void merge(CyclicList& from) {
-        if (start && from.start) {
-            this->count += from.count;
-            Node* tempEnd = this->end();
-            this->start->prev = from.end();  // gut
-            from.end()->next = this->start;
-            tempEnd->next = from.start;
-            from.start->prev = tempEnd;
-        } else if (start && !from.start) {
-            return;
-        } else {
-            this->start = from.start;
-            this->count = from.count;
-        }
-
-        from.start = nullptr;
-        from.count = 0;
-    }
-};
-
+#include <cassert>
 
 struct FibNode {
     int id;
@@ -88,15 +16,24 @@ struct FibNode {
     FibNode* nextBro = nullptr;
     FibNode* firstSon = nullptr;
 
-    FibNode(int id_, int key_) : id(id_), key(key_){};
+    FibNode(int id_, int key_) : id(id_), key(key_) {
+        nextBro = this;
+        prevBro = this;
+    };
 };
 
 class FibonacciHeap {
-    FibNode* mapa[3000000];
+   public:
+    FibNode* mapa[20000];
 
-    FibNode* firstTree;
+    FibNode* cachedMin = nullptr;
 
-    static void appendToList(FibNode* list, FibNode* item) {
+    FibNode* firstTree = nullptr;
+
+    int numberOfTrees = 0;
+
+    /// Append one 'item' to a cyclic list of nodes 'list'
+    static FibNode* appendToList(FibNode* list, FibNode* item) {
         FibNode* start = list;
         if (start) {
             FibNode* end = start->prevBro;
@@ -106,14 +43,30 @@ class FibonacciHeap {
             start->prevBro = item;
         } else {
             start = item;
+            start->prevBro = item;
+            start->nextBro = item;
         }
+        return start;
     }
 
+    /// Append a tree into the forest
+    void appendTree(FibNode* tree) {
+        firstTree = appendToList(firstTree, tree);
+        numberOfTrees++;
+    }
+
+    /// Delete the node 'x' from x->parent's sons cyclic list
     static void deleteMyselfFromSons(FibNode* x) {
-        FibNode* prevBro = x->prevBro;
-        FibNode* nextBro = x->nextBro;
-        prevBro->nextBro = nextBro;
-        nextBro->prevBro = prevBro;
+        // \todo nullptr?
+        FibNode* prevPtr = x->prevBro;
+        FibNode* nextPtr = x->nextBro;
+        prevPtr->nextBro = nextPtr;
+        nextPtr->prevBro = prevPtr;
+        if (x->parent->firstSon == x) {
+            x->parent->firstSon = nextPtr;
+        }
+        x->nextBro = nullptr;
+        x->prevBro = nullptr;
     }
 
     void cut(FibNode* x) {
@@ -127,9 +80,10 @@ class FibonacciHeap {
 
         // 3. delete the edge parent-x
         deleteMyselfFromSons(x);
+        parent->sonCount -= 1;
 
         // 5. take x and make it a new tree by inserting into trees
-        appendToList(firstTree, x);
+        appendTree(x);
 
         // 4. reset the mark on x
         x->mark = false;
@@ -144,25 +98,59 @@ class FibonacciHeap {
         }
     }
 
-    FibNode* findMin(FibNode* heap){};
+    /// Delete one particular node by deleting it from its parent's sons list, then deleting the
+    /// node, reducing parent's sons count and returning a CyclicList of newly formed trees without
+    /// a root
+    FibNode* deleteNode(FibNode* itemToDelete) {
+        FibNode* newTrees = itemToDelete->firstSon;
+        // \todo reset 'parent' atribute for newTrees?
+        deleteMyselfFromSons(itemToDelete);
+        itemToDelete->parent->sonCount--;
+        delete itemToDelete;
+        return newTrees;
+    }
 
-    FibNode* deleteNode(FibNode* itemToDelete){};
+    /// Merge two cyclic lists into one
+    static FibNode* merge(FibNode* mergeInto, FibNode* mergeFrom) {
+        if (mergeFrom == nullptr) {
+            return mergeInto;
+        }
 
-    FibNode* merge(FibNode* mergeInto, FibNode* mergeFrom) {}
+        FibNode* intoEnd = mergeInto->prevBro;
+        FibNode* fromEnd = mergeFrom->prevBro;
+        intoEnd->nextBro = mergeFrom;
+        fromEnd->nextBro = mergeInto;
+        mergeInto->prevBro = fromEnd;
+        mergeFrom->prevBro = intoEnd;
+        return mergeInto;
+    }
 
-    void consolidate(){
+    void consolidate() {}
 
-    };
+    FibNode* findById(int id) {
+        return mapa[id];
+    }
 
    public:
-    void insert(std::pair<int, int> newNode) {
+    FibNode* insert(std::pair<int, int> newNode) {
         FibNode* newTree = new FibNode(newNode.first, newNode.second);
-        appendToList(firstTree, newTree);
+        if (cachedMin == nullptr || newTree->key < cachedMin->key) {
+            cachedMin = newTree;
+        }
+        appendTree(newTree);
+        return newTree;
     }
 
     int extractMin() {
-        FibNode* minElement = findMin(firstTree);
+        FibNode* minElement = cachedMin;
         FibNode* newHeap = deleteNode(minElement);
+
+        // \todo reset 'parent' atribute for all sons?
+        FibNode* cur = newHeap;
+        while (cur != newHeap->prevBro) {
+            cur->parent = nullptr;
+        }
+
         firstTree = merge(firstTree, newHeap);
         consolidate();
         return minElement->key;
@@ -171,10 +159,23 @@ class FibonacciHeap {
     void decrease(int idToDecrease, int newValue) {
         FibNode* nodeToDec = findById(idToDecrease);
         nodeToDec->key = newValue;
+
+        // Update the mininum
+        if (nodeToDec->key < cachedMin->key) {
+            cachedMin = nodeToDec;
+        }
+
+        // Cut if we break the heap invariant
         FibNode* parent = nodeToDec->parent;
         if (parent->key > newValue) {
             cut(nodeToDec);
         }
+    }
+
+    void deleteItem(int idToDelete) {
+        decrease(idToDelete, INT_MIN);
+        int value = extractMin();
+        assert(value == INT_MIN);
     }
 };
 

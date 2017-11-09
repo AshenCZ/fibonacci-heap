@@ -21,6 +21,9 @@
     <ClCompile Include="CyclicList.test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FibHeap.test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fibheap.h">
