@@ -199,33 +199,27 @@ class FibonacciHeap {
             while (node != nullptr && node->nextBro != node) {
                 FibNode* one = node;
                 FibNode* two = node->nextBro;
-                if (two != one) {
-                    if (two->nextBro == one) {
-                        boxes[currentBox] = nullptr;
-                        std::cout << "del, first in " << currentBox << " is NULL\n";
-
-                    } else {
-                        boxes[currentBox] = two->nextBro;
-                        std::cout << "del, first in " << currentBox << " is value " << boxes[currentBox]->key << "\n";
-                    }
-                    std::cout << "Merged " << one->key << " with " << two->key << " put them in " << currentBox + 1 << "\n";
-                    deleteMyselfFromSons(one);
-                    deleteMyselfFromSons(two);
-                    boxes[currentBox + 1] = appendToList(boxes[currentBox + 1], heapMerge(one, two));
-                } else {
+                if (two->nextBro == one) {
                     boxes[currentBox] = nullptr;
-                    std::cout << "emit " << one->key << "\n";
-                    assert(one->key == two->key);
-                    deleteMyselfFromSons(one);
-                    std::cout << "box empty\n";
+                    std::cout << "del, first in " << currentBox << " is NULL\n";
+
+                } else {
+                    boxes[currentBox] = two->nextBro;
+                    std::cout << "del, first in " << currentBox << " is value "
+                              << boxes[currentBox]->key << "\n";
                 }
+                std::cout << "Merged " << one->key << " with " << two->key << " put them in "
+                          << currentBox + 1 << "\n";
+                deleteMyselfFromSons(one);
+                deleteMyselfFromSons(two);
+                boxes[currentBox + 1] = appendToList(boxes[currentBox + 1], heapMerge(one, two));
                 node = boxes[currentBox];
             }
 
-            if(node != nullptr)
-            {
+            if (node != nullptr) {
                 assert(node == node->nextBro);
                 returnVal = appendToList(returnVal, node);
+                cachedMin = cachedMin->key > returnVal->key ? returnVal : cachedMin;
                 boxes[currentBox] = nullptr;
             }
         }

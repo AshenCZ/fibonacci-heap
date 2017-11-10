@@ -224,7 +224,7 @@ TEST(cut, v_shape_cut)
 
 TEST(consolidate, three_items) {
     FibonacciHeap heap;
-    heap.insert({1, 1});
+    auto min = heap.insert({1, 1});
     auto d = heap.insert({2, 2});
     heap.insert({3, 3});
 
@@ -236,23 +236,13 @@ TEST(consolidate, three_items) {
     EXPECT_EQ(newHeap->nextBro->firstSon, d);
     EXPECT_EQ(newHeap->nextBro->key, 1);
 
-    //FibNode* cur = newHeap;
-    //while (true) {
-    //    std::cout << " " << cur->key;
-    //    if (cur != newHeap->prevBro) {
-    //        cur = cur->nextBro;
-    //    }
-    //    else
-    //    {
-    //        break;
-    //    }
-    //}
+    EXPECT_EQ(heap.cachedMin, min);
 }
 
 TEST(consolidate, four_items)
 {
     FibonacciHeap heap;
-    heap.insert({1, 1});
+    auto min = heap.insert({1, 1});
      heap.insert({2, 2});
     heap.insert({3, 3});
     heap.insert({4, 4});
@@ -261,12 +251,15 @@ TEST(consolidate, four_items)
 
     EXPECT_EQ(newHeap->key, 1);
     EXPECT_EQ(newHeap->nextBro->key, 1);
+
+    EXPECT_EQ(heap.cachedMin, min);
+
 }
 
 TEST(consolidate, five_items)
 {
     FibonacciHeap heap;
-    heap.insert({1, 1});
+    auto min = heap.insert({1, 1});
     heap.insert({2, 2});
     heap.insert({3, 3});
     heap.insert({4, 4});
@@ -274,7 +267,9 @@ TEST(consolidate, five_items)
 
     FibNode* newHeap = heap.consolidate();
 
-    EXPECT_EQ(newHeap->key, 1);
-    EXPECT_EQ(newHeap->nextBro->key, 5);
-    EXPECT_EQ(newHeap->nextBro->nextBro->key, 1);
+    EXPECT_EQ(newHeap->key, 5);
+    EXPECT_EQ(newHeap->nextBro->key, 1);
+    EXPECT_EQ(newHeap->nextBro->nextBro->key, 5);
+
+    EXPECT_EQ(heap.cachedMin, min);
 }
