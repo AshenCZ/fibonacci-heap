@@ -54,7 +54,7 @@ TEST(merge, merging_two_unempty)
 
     auto list2 = heap2.firstTree;
 
-    heap.merge(list1, list2);
+    heap.mergeLists(list1, list2);
 
     EXPECT_EQ(list1->key, 1);
     EXPECT_EQ(list1->prevBro->key, 6);
@@ -88,7 +88,7 @@ TEST(merge, merging_full_with_one_item)
 
     auto list2 = heap2.firstTree;
 
-    heap.merge(list1, list2);
+    heap.mergeLists(list1, list2);
     EXPECT_EQ(list1->key, 1);
     EXPECT_EQ(list1->prevBro->key, 4);
     EXPECT_EQ(list1->prevBro->prevBro->key, 3);
@@ -117,7 +117,7 @@ TEST(merge, merging_one_item_with_full)
 
     auto list2 = heap2.firstTree;
 
-    heap.merge(list2, list1);
+    heap.mergeLists(list2, list1);
     list1 = list2;
 
     EXPECT_EQ(list1->key, 4);
@@ -220,4 +220,61 @@ TEST(cut, v_shape_cut)
     EXPECT_EQ(n->nextBro, heap.firstTree);
     EXPECT_EQ(n->prevBro, heap.firstTree);
     EXPECT_EQ(n->parent, nullptr);
+}
+
+TEST(consolidate, three_items) {
+    FibonacciHeap heap;
+    heap.insert({1, 1});
+    auto d = heap.insert({2, 2});
+    heap.insert({3, 3});
+
+    FibNode* newHeap = heap.consolidate();
+
+    EXPECT_EQ(newHeap->key, 3);
+    EXPECT_EQ(newHeap->sonCount, 0);
+    EXPECT_EQ(newHeap->nextBro->sonCount, 1);
+    EXPECT_EQ(newHeap->nextBro->firstSon, d);
+    EXPECT_EQ(newHeap->nextBro->key, 1);
+
+    //FibNode* cur = newHeap;
+    //while (true) {
+    //    std::cout << " " << cur->key;
+    //    if (cur != newHeap->prevBro) {
+    //        cur = cur->nextBro;
+    //    }
+    //    else
+    //    {
+    //        break;
+    //    }
+    //}
+}
+
+TEST(consolidate, four_items)
+{
+    FibonacciHeap heap;
+    heap.insert({1, 1});
+     heap.insert({2, 2});
+    heap.insert({3, 3});
+    heap.insert({4, 4});
+
+    FibNode* newHeap = heap.consolidate();
+
+    EXPECT_EQ(newHeap->key, 1);
+    EXPECT_EQ(newHeap->nextBro->key, 1);
+}
+
+TEST(consolidate, five_items)
+{
+    FibonacciHeap heap;
+    heap.insert({1, 1});
+    heap.insert({2, 2});
+    heap.insert({3, 3});
+    heap.insert({4, 4});
+    heap.insert({5, 5});
+
+    FibNode* newHeap = heap.consolidate();
+
+    EXPECT_EQ(newHeap->key, 1);
+    EXPECT_EQ(newHeap->nextBro->key, 5);
+    EXPECT_EQ(newHeap->nextBro->nextBro->key, 1);
 }
