@@ -38,14 +38,13 @@ TEST(insert, caching_min) {
     EXPECT_EQ(heap.cachedMin->key, 1);
 }
 
-TEST(merge, merging_two_unempty)
-{
+TEST(merge, merging_two_unempty) {
     FibonacciHeap heap;
     auto a1 = heap.insert({1, 1});
     auto a2 = heap.insert({2, 2});
     auto a3 = heap.insert({3, 3});
-    
-    FibNode * list1 = heap.firstTree;
+
+    FibNode* list1 = heap.firstTree;
 
     FibonacciHeap heap2;
     a1 = heap2.insert({4, 4});
@@ -74,14 +73,13 @@ TEST(merge, merging_two_unempty)
     EXPECT_EQ(list1->nextBro->nextBro->nextBro->nextBro->nextBro->nextBro->nextBro->key, 2);
 }
 
-TEST(merge, merging_full_with_one_item)
-{
+TEST(merge, merging_full_with_one_item) {
     FibonacciHeap heap;
     auto a1 = heap.insert({1, 1});
     heap.insert({2, 2});
     heap.insert({3, 3});
 
-    FibNode * list1 = heap.firstTree;
+    FibNode* list1 = heap.firstTree;
 
     FibonacciHeap heap2;
     a1 = heap2.insert({4, 4});
@@ -103,14 +101,13 @@ TEST(merge, merging_full_with_one_item)
     EXPECT_EQ(list1->nextBro->nextBro->nextBro->nextBro->nextBro->key, 2);
 }
 
-TEST(merge, merging_one_item_with_full)
-{
+TEST(merge, merging_one_item_with_full) {
     FibonacciHeap heap;
     auto a1 = heap.insert({1, 1});
     heap.insert({2, 2});
     heap.insert({3, 3});
 
-    FibNode * list1 = heap.firstTree;
+    FibNode* list1 = heap.firstTree;
 
     FibonacciHeap heap2;
     a1 = heap2.insert({4, 4});
@@ -135,10 +132,9 @@ TEST(merge, merging_one_item_with_full)
     EXPECT_EQ(list1->nextBro->nextBro->nextBro->nextBro->nextBro->key, 1);
 }
 
-TEST(delete_from_sons, simple)
-{
+TEST(delete_from_sons, simple) {
     FibonacciHeap heap;
-    heap.insert({1,1});
+    heap.insert({1, 1});
     heap.insert({2, 2});
     FibNode* me = heap.insert({3, 3});
     heap.insert({4, 4});
@@ -165,7 +161,7 @@ TEST(delete_from_sons, simple)
     int vals[3] = {1, 2, 4};
     int i = 0;
     while (true) {
-        EXPECT_EQ(vals[i],cur->key);
+        EXPECT_EQ(vals[i], cur->key);
         i++;
         if (cur != parent->firstSon->prevBro) {
             cur = cur->nextBro;
@@ -176,10 +172,10 @@ TEST(delete_from_sons, simple)
 
     cur = parent->firstSon->prevBro;
     i = 0;
-    int valsInv[3] = {4,2 ,1};
+    int valsInv[3] = {4, 2, 1};
 
     while (true) {
-        EXPECT_EQ(valsInv[i],cur->key);
+        EXPECT_EQ(valsInv[i], cur->key);
         i++;
         if (cur != parent->firstSon) {
             cur = cur->prevBro;
@@ -187,18 +183,16 @@ TEST(delete_from_sons, simple)
             break;
         }
     }
-
 }
 
-TEST(cut, v_shape_cut)
-{
+TEST(cut, v_shape_cut) {
     FibonacciHeap heap;
-    auto r = heap.insert({1,1});
+    auto r = heap.insert({1, 1});
 
-    heap.firstTree->firstSon = new FibNode(2,2);
+    heap.firstTree->firstSon = new FibNode(2, 2);
     auto n = heap.firstTree->firstSon;
     n->parent = r;
-    heap.firstTree->firstSon->nextBro = new FibNode(3,3);
+    heap.firstTree->firstSon->nextBro = new FibNode(3, 3);
     auto s = heap.firstTree->firstSon->nextBro;
     s->parent = r;
     heap.firstTree->firstSon->prevBro = heap.firstTree->firstSon->nextBro;
@@ -235,17 +229,20 @@ TEST(consolidate, three_items) {
     EXPECT_EQ(newHeap->nextBro->sonCount, 1);
     EXPECT_EQ(newHeap->nextBro->firstSon, d);
     EXPECT_EQ(newHeap->nextBro->key, 1);
-
+    
     EXPECT_EQ(heap.cachedMin, min);
+
+    EXPECT_EQ(newHeap->parent, nullptr);
+    EXPECT_EQ(newHeap->nextBro->parent, nullptr);
+    EXPECT_EQ(newHeap->nextBro->firstSon->parent, newHeap->nextBro);
 }
 
-TEST(consolidate, four_items)
-{
+TEST(consolidate, four_items) {
     FibonacciHeap heap;
     auto min = heap.insert({1, 1});
-     heap.insert({2, 2});
-    heap.insert({3, 3});
-    heap.insert({4, 4});
+    auto fs = heap.insert({2, 2});
+    auto ss = heap.insert({3, 3});
+    auto ls = heap.insert({4, 4});
 
     FibNode* newHeap = heap.consolidate();
 
@@ -254,10 +251,27 @@ TEST(consolidate, four_items)
 
     EXPECT_EQ(heap.cachedMin, min);
 
+    EXPECT_EQ(newHeap->firstSon, fs);
+    EXPECT_EQ(newHeap->firstSon->nextBro, ss);
+    EXPECT_EQ(newHeap->firstSon->prevBro, ss);
+    EXPECT_EQ(newHeap->firstSon->prevBro->prevBro, fs);
+    EXPECT_EQ(newHeap->firstSon->nextBro->nextBro, fs);
+
+    EXPECT_EQ(ss->firstSon, ls);
+    EXPECT_EQ(ss->firstSon->nextBro, ls);
+    EXPECT_EQ(ss->firstSon->prevBro, ls);
+
+    EXPECT_EQ(newHeap->sonCount, 2);
+    EXPECT_EQ(newHeap->firstSon->sonCount, 0);
+    EXPECT_EQ(newHeap->firstSon->nextBro->sonCount, 1);
+
+    EXPECT_EQ(newHeap->parent, nullptr);
+    EXPECT_EQ(newHeap->firstSon->parent, newHeap);
+    EXPECT_EQ(newHeap->firstSon->nextBro->parent, newHeap);
+    EXPECT_EQ(newHeap->firstSon->nextBro->firstSon->parent, newHeap->firstSon->nextBro);
 }
 
-TEST(consolidate, five_items)
-{
+TEST(consolidate, five_items) {
     FibonacciHeap heap;
     auto min = heap.insert({1, 1});
     heap.insert({2, 2});

@@ -125,28 +125,22 @@ class FibonacciHeap {
         return mergeInto;
     }
 
-    FibNode* addSon(FibNode* heap, FibNode* son)
-    {
+    FibNode* addSon(FibNode* heap, FibNode* son) {
         heap->firstSon = appendToList(heap->firstSon, son);
+        son->parent = heap;
         heap->sonCount++;
         return heap;
     }
 
-    FibNode* heapMerge(FibNode* heap1, FibNode* heap2)
-    {
+    FibNode* heapMerge(FibNode* heap1, FibNode* heap2) {
         // dvojku privesime pod jednicku
-        if(heap1->key < heap2->key)
-        {
+        if (heap1->key < heap2->key) {
             heap1 = addSon(heap1, heap2);
             return heap1;
-        }
-        else if(heap1->key > heap2->key)
-        {
+        } else if (heap1->key > heap2->key) {
             heap2 = addSon(heap2, heap1);
             return heap2;
-        }
-        else
-        {
+        } else {
             assert(false);
             return nullptr;
         }
@@ -202,7 +196,6 @@ class FibonacciHeap {
                 if (two->nextBro == one) {
                     boxes[currentBox] = nullptr;
                     std::cout << "del, first in " << currentBox << " is NULL\n";
-
                 } else {
                     boxes[currentBox] = two->nextBro;
                     std::cout << "del, first in " << currentBox << " is value "
@@ -218,6 +211,7 @@ class FibonacciHeap {
 
             if (node != nullptr) {
                 assert(node == node->nextBro);
+                node->parent = nullptr;
                 returnVal = appendToList(returnVal, node);
                 cachedMin = cachedMin->key > returnVal->key ? returnVal : cachedMin;
                 boxes[currentBox] = nullptr;
@@ -247,14 +241,13 @@ class FibonacciHeap {
         const int retValue = minElement->key;
         FibNode* newHeap = deleteNode(minElement);
 
-        // \todo reset 'parent' atribute for all sons?
         FibNode* cur = newHeap;
         while (cur != newHeap->prevBro) {
             cur->parent = nullptr;
         }
 
         firstTree = mergeLists(firstTree, newHeap);
-        consolidate();
+        firstTree = consolidate();
         return retValue;
     }
 
