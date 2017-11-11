@@ -60,9 +60,9 @@ struct FibNode {
 
 class FibonacciHeap {
    public:
-#define MAP_SIZE 20000
-    FibNode* mapa[MAP_SIZE];
-    static_assert(MAP_SIZE >= 20000, "Check if the map is big enough.");
+#define MAP_SIZE 2000000
+    FibNode** mapa = new FibNode*[MAP_SIZE]();
+    static_assert(MAP_SIZE >= 2000000, "Check if the map is big enough.");
 
     Logger log;
 
