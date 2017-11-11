@@ -319,6 +319,9 @@ class FibonacciHeap {
 
     void decrease(int idToDecrease, int newValue) {
         FibNode* nodeToDec = findById(idToDecrease);
+        if (nodeToDec == nullptr) {
+            return;
+        }
         assert(nodeToDec->id == idToDecrease);
         assert(nodeToDec->key > newValue);
         nodeToDec->key = newValue;

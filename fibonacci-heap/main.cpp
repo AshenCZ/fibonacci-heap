@@ -17,10 +17,9 @@ void executeLine(const std::string& line, FibonacciHeap& heap) {
         heap.insert({first, second});
     } else if (line[0] == 'D' && line[2] == 'L') {
         int ret = heap.extractMin();
-
+        ret;
 #ifdef VERBAL
-        std::cout << "DEL\n";
-        std::cout << "Extr: " << ret << "\n";
+        std::cout << "DEL == " << ret << "\n";
 #endif
     } else if (line[0] == 'D' && line[2] == 'C') {
         int first = atoi(line.c_str() + 4);
@@ -33,11 +32,9 @@ void executeLine(const std::string& line, FibonacciHeap& heap) {
 
         heap.decrease(first, second);
     } else if (line[0] == '#') {
-#ifdef VERBAL
         if (heap.log.init()) {
             std::cout << "N;" << heap.log.N << ";AVG;" << heap.log.getAverage() << ";\n";
         }
-#endif
         int first = atoi(line.c_str() + 2);
         heap.log.rememberN(first);
         heap.reset();
@@ -53,9 +50,7 @@ void run() {
     while (std::getline(std::cin, line)) {
         executeLine(line, heap);
     }
-#ifdef VERBAL
     std::cout << "N;" << heap.log.N << ";AVG;" << heap.log.getAverage() << ";\n";
-#endif
 }
 
 int main(int argc, wchar_t** argv) {
