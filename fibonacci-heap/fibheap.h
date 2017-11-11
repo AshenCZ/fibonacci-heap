@@ -12,6 +12,7 @@ class Logger {
    public:
     int numberOfLogs = 0;
     int cumulativeLog = 0;
+    int N = 0;
 
     void logStep(int num) {
         cumulativeLog += num;
@@ -19,6 +20,10 @@ class Logger {
 
     void logExtMin() {
         numberOfLogs++;
+    }
+
+    void rememberN(int rn) {
+        N = rn;
     }
 
     float getAverage() const {
@@ -29,6 +34,10 @@ class Logger {
     void reset() {
         numberOfLogs = 0;
         cumulativeLog = 0;
+    }
+
+    bool init() {
+        return numberOfLogs > 0;
     }
 };
 
@@ -141,6 +150,7 @@ class FibonacciHeap {
         if (itemToDelete->parent) {
             itemToDelete->parent->sonCount--;
         }
+        mapa[itemToDelete->id] = nullptr;
         delete itemToDelete;
         return newTrees;
     }
@@ -335,6 +345,7 @@ class FibonacciHeap {
         while (firstTree != nullptr) {
             extractMin();
         }
+        log.reset();
     }
 };
 
