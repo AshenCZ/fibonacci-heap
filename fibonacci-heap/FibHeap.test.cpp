@@ -754,5 +754,64 @@ TEST(decrease, decrease_and_extractMin_do_not_set_INT_MIN) {
     EXPECT_EQ(heap.firstTree->firstSon, dv);
 }
 
+TEST(Logger, logs_correctly_simple) {
+    FibonacciHeap heap;
+    heap.insert({1, 1});
+    heap.insert({2, 2});
+    heap.insert({3, 3});
+
+    heap.extractMin();
+
+    EXPECT_EQ(heap.log.numberOfLogs, 1);
+    EXPECT_EQ(heap.log.cumulativeLog, 1);
+    EXPECT_EQ(heap.log.getAverage(), 1.f);
+}
+
+TEST(Logger, logs_correctly_complicated) {
+    FibonacciHeap heap;
+
+    heap.insert({5, 5});
+    heap.insert({6, 6});
+    heap.insert({4, 4});
+    heap.insert({9, 9});
+    heap.insert({2, 2});
+    heap.insert({1, 1});
+    heap.insert({7, 7});
+    heap.insert({8, 8});
+    heap.insert({3, 3});
+
+    // Structure tested in extractMin--nine_items_build_third_degree_tree
+    EXPECT_EQ(heap.extractMin(), 1);
+
+    EXPECT_EQ(heap.log.numberOfLogs, 1);
+    EXPECT_EQ(heap.log.cumulativeLog, 7);
+    EXPECT_EQ(heap.log.getAverage(), 7.f);
+
+    EXPECT_NO_THROW(heap.decrease(5, 1));
+
+    EXPECT_EQ(heap.log.numberOfLogs, 1);
+    EXPECT_EQ(heap.log.cumulativeLog, 7);
+    EXPECT_EQ(heap.log.getAverage(), 7.f);
+
+    EXPECT_EQ(heap.extractMin(), 1);
+
+    EXPECT_EQ(heap.log.numberOfLogs, 2);
+    EXPECT_EQ(heap.log.cumulativeLog, 8);
+    EXPECT_EQ(heap.log.getAverage(), 4.f);
+
+    EXPECT_EQ(heap.extractMin(), 2);
+
+    EXPECT_EQ(heap.log.numberOfLogs, 3);
+    EXPECT_EQ(heap.log.cumulativeLog, 13);
+    EXPECT_EQ(heap.log.getAverage(), 13.f / 3.f);
+
+
+    EXPECT_EQ(heap.extractMin(), 3);
+
+    EXPECT_EQ(heap.log.numberOfLogs, 4);
+    EXPECT_EQ(heap.log.cumulativeLog, 16);
+    EXPECT_EQ(heap.log.getAverage(), 16.f / 4.f);
+}
+
 // \todo TEST for marks
 // \todo TEST for decrease + extractMin should check if cachedMin != INT_MIN

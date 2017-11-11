@@ -8,6 +8,30 @@
 // \todo Remember to uncheck me!
 // #define NDEBUG
 
+class Logger {
+   public:
+    int numberOfLogs = 0;
+    int cumulativeLog = 0;
+
+    void logStep(int num) {
+        cumulativeLog += num;
+    }
+
+    void logExtMin() {
+        numberOfLogs++;
+    }
+
+    float getAverage() const {
+        assert(numberOfLogs > 0);
+        return float(cumulativeLog) / float(numberOfLogs);
+    }
+
+    void reset() {
+        numberOfLogs = 0;
+        cumulativeLog = 0;
+    }
+};
+
 struct FibNode {
     int id;
     int key;
@@ -30,6 +54,8 @@ class FibonacciHeap {
 #define MAP_SIZE 20000
     FibNode* mapa[MAP_SIZE];
     static_assert(MAP_SIZE >= 20000, "Check if the map is big enough.");
+
+    Logger log;
 
     FibNode* cachedMin = nullptr;
 
@@ -107,8 +133,9 @@ class FibonacciHeap {
     /// Delete one particular node by deleting it from its parent's sons list, then deleting the
     /// node, reducing parent's sons count and returning a CyclicList of newly formed trees without
     /// a root
-    static FibNode* deleteNode(FibNode* itemToDelete) {
+    FibNode* deleteNode(FibNode* itemToDelete) {
         FibNode* newTrees = itemToDelete->firstSon;
+        log.logStep(itemToDelete->sonCount);
         // \todo reset 'parent' atribute for newTrees?
         deleteMyselfFromSons(itemToDelete);
         if (itemToDelete->parent) {
@@ -204,6 +231,7 @@ class FibonacciHeap {
                 deleteMyselfFromSons(one);
                 deleteMyselfFromSons(two);
                 boxes[currentBox + 1] = appendToList(boxes[currentBox + 1], heapMerge(one, two));
+                log.logStep(1);
                 node = boxes[currentBox];
             }
 
@@ -272,6 +300,8 @@ class FibonacciHeap {
         }
 
         firstTree = consolidate();
+
+        log.logExtMin();
         return retValue;
     }
 
