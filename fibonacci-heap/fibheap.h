@@ -253,6 +253,8 @@ class FibonacciHeap {
     }
 
    public:
+    /// Insert ID and KEY
+    /// \param newNode first is ID, second is KEY
     FibNode* insert(std::pair<int, int> newNode) {
         if (mapa[newNode.first] != nullptr) {
             throw std::exception("Inserting multiple same IDs!");
@@ -327,6 +329,12 @@ class FibonacciHeap {
         decrease(idToDelete, INT_MIN);
         int value = extractMin();
         assert(value == INT_MIN);
+    }
+
+    void reset() {
+        while (firstTree != nullptr) {
+            extractMin();
+        }
     }
 };
 
