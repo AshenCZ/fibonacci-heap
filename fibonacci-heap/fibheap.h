@@ -30,6 +30,8 @@ class FibonacciHeap {
 
     FibNode* firstTree = nullptr;
 
+    FibNode* maxVal = new FibNode(INT_MAX, INT_MAX);
+
     int numberOfTrees = 0;
 
     /// Append one 'item' to a cyclic list of nodes 'list'
@@ -105,7 +107,9 @@ class FibonacciHeap {
         FibNode* newTrees = itemToDelete->firstSon;
         // \todo reset 'parent' atribute for newTrees?
         deleteMyselfFromSons(itemToDelete);
-        itemToDelete->parent->sonCount--;
+        if (itemToDelete->parent) {
+            itemToDelete->parent->sonCount--;
+        }
         delete itemToDelete;
         return newTrees;
     }
@@ -114,6 +118,9 @@ class FibonacciHeap {
     static FibNode* mergeLists(FibNode* mergeInto, FibNode* mergeFrom) {
         if (mergeFrom == nullptr) {
             return mergeInto;
+        }
+        if (mergeInto == nullptr) {
+            return mergeFrom;
         }
 
         FibNode* intoEnd = mergeInto->prevBro;
@@ -125,14 +132,14 @@ class FibonacciHeap {
         return mergeInto;
     }
 
-    FibNode* addSon(FibNode* heap, FibNode* son) {
+    static FibNode* addSon(FibNode* heap, FibNode* son) {
         heap->firstSon = appendToList(heap->firstSon, son);
         son->parent = heap;
         heap->sonCount++;
         return heap;
     }
 
-    FibNode* heapMerge(FibNode* heap1, FibNode* heap2) {
+    static FibNode* heapMerge(FibNode* heap1, FibNode* heap2) {
         // dvojku privesime pod jednicku
         if (heap1->key < heap2->key) {
             heap1 = addSon(heap1, heap2);
@@ -146,25 +153,12 @@ class FibonacciHeap {
         }
     }
 
-    void consoPrintBoxes(FibNode** boxes) {
-        for (int i = 0; i < 50; ++i) {
-            std::cout << "\nPrihradka " << i << ": ";
-            FibNode* cur = boxes[i];
-            if (!cur) {
-                continue;
-            }
-            while (true) {
-                std::cout << " " << cur->key;
-                cur = cur->nextBro;
-                if (cur == boxes[i]) {
-                    break;
-                }
-            }
-        }
-    }
-
     FibNode* consolidate() {
+        numberOfTrees = 0;
         FibNode* returnVal = nullptr;
+        if (firstTree == nullptr) {
+            return returnVal;
+        }
 
         FibNode* boxes[50];
         for (int i = 0; i < 50; ++i) {
@@ -180,10 +174,10 @@ class FibonacciHeap {
             boxes[current->sonCount] = appendToList(boxes[current->sonCount], current);
 
             // Next
-            current = nextVal;
-            if (current == firstTree) {
+            if (current == nextVal) {
                 break;
             }
+            current = nextVal;
         }
 
         // Go through all, merge
@@ -195,14 +189,14 @@ class FibonacciHeap {
                 FibNode* two = node->nextBro;
                 if (two->nextBro == one) {
                     boxes[currentBox] = nullptr;
-                    std::cout << "del, first in " << currentBox << " is NULL\n";
+                    // std::cout << "del, first in " << currentBox << " is NULL\n";
                 } else {
                     boxes[currentBox] = two->nextBro;
-                    std::cout << "del, first in " << currentBox << " is value "
-                              << boxes[currentBox]->key << "\n";
+                    // std::cout << "del, first in " << currentBox << " is value "
+                    //          << boxes[currentBox]->key << "\n";
                 }
-                std::cout << "Merged " << one->key << " with " << two->key << " put them in "
-                          << currentBox + 1 << "\n";
+                // std::cout << "Merged " << one->key << " with " << two->key << " put them in "
+                //          << currentBox + 1 << "\n";
                 deleteMyselfFromSons(one);
                 deleteMyselfFromSons(two);
                 boxes[currentBox + 1] = appendToList(boxes[currentBox + 1], heapMerge(one, two));
@@ -213,12 +207,12 @@ class FibonacciHeap {
                 assert(node == node->nextBro);
                 node->parent = nullptr;
                 returnVal = appendToList(returnVal, node);
-                cachedMin = cachedMin->key > returnVal->key ? returnVal : cachedMin;
+                numberOfTrees++;
+                cachedMin = cachedMin->key > node->key ? node : cachedMin;
                 boxes[currentBox] = nullptr;
             }
         }
 
-        // consoPrintBoxes(boxes);
         return returnVal;
     }
 
@@ -237,16 +231,36 @@ class FibonacciHeap {
     }
 
     int extractMin() {
+        if (firstTree == nullptr) {
+            auto excp = std::exception("extract on empty heap");
+            throw excp;
+        }
         FibNode* minElement = cachedMin;
         const int retValue = minElement->key;
-        FibNode* newHeap = deleteNode(minElement);
+        cachedMin = maxVal;
 
-        FibNode* cur = newHeap;
-        while (cur != newHeap->prevBro) {
-            cur->parent = nullptr;
+        if (minElement == firstTree) {
+            if (firstTree->nextBro == firstTree)
+                firstTree = nullptr;
+            else
+                firstTree = firstTree->nextBro;
         }
 
-        firstTree = mergeLists(firstTree, newHeap);
+        FibNode* newHeap = deleteNode(minElement);
+
+        if (newHeap) {
+            FibNode* cur = newHeap;
+            while (true) {
+                cur->parent = nullptr;
+                if (cur != newHeap->prevBro) {
+                    cur = cur->nextBro;
+                } else {
+                    break;
+                }
+            }
+            firstTree = mergeLists(firstTree, newHeap);
+        }
+
         firstTree = consolidate();
         return retValue;
     }
