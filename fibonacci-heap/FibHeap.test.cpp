@@ -598,4 +598,161 @@ TEST(extractMin, bigger_example) {
     EXPECT_EQ(dv->parent, nullptr);
     EXPECT_EQ(ct->parent, nullptr);
 }
+
+TEST(findById, simple) {
+    FibonacciHeap heap;
+    auto a1 = heap.insert({1, 1});
+    auto a2 = heap.insert({2, 2});
+    auto a3 = heap.insert({3, 3});
+
+    EXPECT_EQ(heap.findById(1), a1);
+    EXPECT_EQ(heap.findById(2), a2);
+    EXPECT_EQ(heap.findById(3), a3);
+    EXPECT_EQ(heap.findById(1337), nullptr);
+}
+
+TEST(decrease, simple) {
+    FibonacciHeap heap;
+    heap.insert({1, 1});
+    heap.insert({2, 2});
+    heap.insert({3, 3});
+
+    heap.decrease(3, 0);
+
+    EXPECT_EQ(heap.firstTree->key, 1);
+    EXPECT_EQ(heap.firstTree->prevBro->key, 0);
+    EXPECT_EQ(heap.cachedMin->key, 0);
+}
+
+TEST(decrease, cut_second_degree_tree_in_half) {
+    FibonacciHeap heap;
+    heap.insert({1, 1});
+    heap.insert({2, 2});
+    heap.insert({3, 3});
+    heap.insert({4, 4});
+    heap.insert({5, 5});
+
+    heap.extractMin();
+
+    heap.decrease(4, 1);
+
+    EXPECT_EQ(heap.firstTree->key, 2);
+    EXPECT_EQ(heap.firstTree->prevBro->key, 1);
+    EXPECT_EQ(heap.cachedMin->key, 1);
+    EXPECT_EQ(heap.numberOfTrees, 2);
+}
+
+TEST(extractMin, nine_items_build_third_degree_tree) {
+    FibonacciHeap heap;
+
+    auto pt = heap.insert({5, 5});
+    auto sest = heap.insert({6, 6});
+    auto ct = heap.insert({4, 4});
+    auto dev = heap.insert({9, 9});
+    auto dv = heap.insert({2, 2});
+    heap.insert({1, 1});
+    auto sed = heap.insert({7, 7});
+    auto osm = heap.insert({8, 8});
+    auto tr = heap.insert({3, 3});
+
+    pt;
+    sest;
+    ct;
+    dev;
+    dv;
+    sed;
+    osm;
+    tr;
+
+    EXPECT_EQ(heap.extractMin(), 1);
+
+    EXPECT_EQ(heap.numberOfTrees, 1);
+    EXPECT_EQ(heap.firstTree, dv);
+    EXPECT_EQ(heap.firstTree->nextBro, dv);
+    EXPECT_EQ(heap.firstTree->prevBro, dv);
+
+    EXPECT_EQ(dv->sonCount, 3);
+    EXPECT_EQ(dv->firstSon, sed);
+    EXPECT_EQ(dv->firstSon->nextBro, tr);
+    EXPECT_EQ(dv->firstSon->nextBro->nextBro, ct);
+    EXPECT_EQ(dv->firstSon->nextBro->nextBro->nextBro, sed);
+
+    EXPECT_EQ(sed->sonCount, 0);
+    EXPECT_EQ(tr->sonCount, 1);
+    EXPECT_EQ(ct->sonCount, 2);
+    EXPECT_EQ(osm->sonCount, 0);
+    EXPECT_EQ(dev->sonCount, 0);
+    EXPECT_EQ(sest->sonCount, 0);
+
+    EXPECT_EQ(dev->parent, ct);
+    EXPECT_EQ(sest->parent, pt);
+    EXPECT_EQ(pt->parent, ct);
+    EXPECT_EQ(ct->parent, dv);
+    EXPECT_EQ(dv->parent, nullptr);
+    EXPECT_EQ(osm->parent, tr);
+    EXPECT_EQ(tr->parent, dv);
+    EXPECT_EQ(sed->parent, dv);
+}
+
+TEST(decrease, decrease_cuts_a_third_degree_tree) {
+    FibonacciHeap heap;
+
+    auto pt = heap.insert({5, 5});
+    auto sest = heap.insert({6, 6});
+    auto ct = heap.insert({4, 4});
+    auto dev = heap.insert({9, 9});
+    auto dv = heap.insert({2, 2});
+    heap.insert({1, 1});
+    auto sed = heap.insert({7, 7});
+    auto osm = heap.insert({8, 8});
+    auto tr = heap.insert({3, 3});
+    pt;
+    sest;
+    ct;
+    dev;
+    dv;
+    sed;
+    osm;
+    tr;
+
+    // Structure tested in extractMin--nine_items_build_third_degree_tree
+    EXPECT_EQ(heap.extractMin(), 1);
+    EXPECT_NO_THROW(heap.decrease(5, 1));
+
+    // should cut the 5--6 subtree and insert it as 1--6 instead and MARK 4
+
+    EXPECT_EQ(ct->mark, true);
+
+    EXPECT_EQ(heap.numberOfTrees, 2);
+
+    EXPECT_EQ(heap.firstTree, dv);
+    EXPECT_EQ(heap.firstTree->nextBro->key, 1);
+    EXPECT_EQ(heap.firstTree->nextBro, pt);
+    EXPECT_EQ(heap.cachedMin->key, 1);
+    EXPECT_EQ(pt->sonCount, 1);
+    EXPECT_EQ(pt->firstSon, sest);
+    EXPECT_EQ(dv->sonCount, 3);
+    EXPECT_EQ(pt->parent, nullptr);
+    EXPECT_EQ(ct->sonCount, 1);
+    EXPECT_EQ(ct->firstSon, dev);
+    EXPECT_EQ(dev->nextBro, dev);
+}
+
+TEST(decrease, decrease_and_extractMin_do_not_set_INT_MIN) {
+    FibonacciHeap heap;
+
+    auto je = heap.insert({1, 1});
+    auto dv = heap.insert({2, 2});
+    heap.insert({3, 3});
+
+    heap.deleteItem(3);
+
+    EXPECT_EQ(heap.cachedMin, je);
+    EXPECT_EQ(heap.firstTree, je);
+    EXPECT_EQ(heap.firstTree->nextBro, je);
+    EXPECT_EQ(heap.firstTree->sonCount, 1);
+    EXPECT_EQ(heap.firstTree->firstSon, dv);
+}
+
+// \todo TEST for marks
 // \todo TEST for decrease + extractMin should check if cachedMin != INT_MIN

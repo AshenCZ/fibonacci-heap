@@ -5,6 +5,9 @@
 
 #include <cassert>
 
+// \todo Remember to uncheck me!
+// #define NDEBUG
+
 struct FibNode {
     int id;
     int key;
@@ -24,7 +27,9 @@ struct FibNode {
 
 class FibonacciHeap {
    public:
-    FibNode* mapa[20000];
+#define MAP_SIZE 20000
+    FibNode* mapa[MAP_SIZE];
+    static_assert(MAP_SIZE >= 20000, "Check if the map is big enough.");
 
     FibNode* cachedMin = nullptr;
 
@@ -94,8 +99,7 @@ class FibonacciHeap {
         // 6. consider parent's mark
         if (!parent->mark) {
             parent->mark = true;
-        }
-        if (parent->mark) {
+        } else if (parent->mark) {
             cut(parent);
         }
     }
@@ -222,7 +226,12 @@ class FibonacciHeap {
 
    public:
     FibNode* insert(std::pair<int, int> newNode) {
+        if (mapa[newNode.first] != nullptr) {
+            throw std::exception("Inserting multiple same IDs!");
+        }
+
         FibNode* newTree = new FibNode(newNode.first, newNode.second);
+        mapa[newNode.first] = newTree;
         if (cachedMin == nullptr || newTree->key < cachedMin->key) {
             cachedMin = newTree;
         }
@@ -240,10 +249,11 @@ class FibonacciHeap {
         cachedMin = maxVal;
 
         if (minElement == firstTree) {
-            if (firstTree->nextBro == firstTree)
+            if (firstTree->nextBro == firstTree) {
                 firstTree = nullptr;
-            else
+            } else {
                 firstTree = firstTree->nextBro;
+            }
         }
 
         FibNode* newHeap = deleteNode(minElement);
@@ -267,6 +277,8 @@ class FibonacciHeap {
 
     void decrease(int idToDecrease, int newValue) {
         FibNode* nodeToDec = findById(idToDecrease);
+        assert(nodeToDec->id == idToDecrease);
+        assert(nodeToDec->key > newValue);
         nodeToDec->key = newValue;
 
         // Update the mininum
@@ -276,7 +288,7 @@ class FibonacciHeap {
 
         // Cut if we break the heap invariant
         FibNode* parent = nodeToDec->parent;
-        if (parent->key > newValue) {
+        if (parent && parent->key > newValue) {
             cut(nodeToDec);
         }
     }
