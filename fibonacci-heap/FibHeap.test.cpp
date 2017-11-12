@@ -833,5 +833,116 @@ TEST(deleteNode, deleting_son_fuck_up) {
     EXPECT_NE(heap.firstTree->firstSon, tri);
 }
 
+TEST(naive, naive_cut_from_example)
+{
+    FibonacciHeap heap;
+
+    auto one = heap.insert({1,1});
+
+    FibNode* A = new FibNode({100, 100});
+    FibNode* B = new FibNode({101, 101});
+    FibNode* C = new FibNode({102, 102});
+    FibNode* D = new FibNode({103, 103});
+    FibNode* E = new FibNode({105, 104});
+    FibNode* F = new FibNode({104, 105});
+
+    FibNode* three = new FibNode({3,3});
+    FibNode* four = new FibNode({4,4});
+    FibNode* seven = new FibNode({7,7});
+    FibNode* eight = new FibNode({8,8});
+
+    heap.firstTree->firstSon = A;
+    heap.firstTree->nextBro = heap.firstTree;
+    heap.firstTree->sonCount = 2;
+    heap.firstTree->prevBro = heap.firstTree;
+
+    A->nextBro = three;
+    A->prevBro = three;
+    A->parent = one;
+
+    three->nextBro = A;
+    three->prevBro = A;
+    three->sonCount = 2;
+    three->firstSon = four;
+    three->parent = one;
+    
+    B->nextBro = four;
+    B->prevBro = four;
+    B->parent = three;
+
+    four->nextBro = B;
+    four->prevBro = B;
+    four->mark = true;
+    four->sonCount = 2;
+    four->firstSon = C;
+
+    C->nextBro = seven;
+    C->prevBro = seven;
+    C->parent = four;
+
+    seven->nextBro = C;
+    seven->prevBro = C;
+    seven->mark = true;
+    seven->sonCount = 2;
+    seven->firstSon = D;
+
+    D->nextBro = eight;
+    D->prevBro = eight;
+    D->parent = seven;
+
+    eight->nextBro = D;
+    eight->prevBro = D;
+    eight->mark = false;
+    eight->sonCount = 2;
+    eight->parent = seven;
+    eight->firstSon = E;
+
+    E->nextBro = F;
+    E->prevBro = F;
+    E->parent = eight;
+
+    F->nextBro = E;
+    F->prevBro = E;
+    F->parent = eight;
+
+    heap.naive = true;
+    heap.mapa[8] = eight;
+    heap.decrease(8, 6);
+
+    EXPECT_EQ(heap.numberOfTrees, 2);
+    EXPECT_EQ(heap.firstTree->key, 1);
+    EXPECT_EQ(one->nextBro->key, 6);
+    EXPECT_EQ(one->prevBro->key, 6);
+    EXPECT_EQ(eight->nextBro->key, 1);
+    EXPECT_EQ(eight->prevBro->key, 1);
+
+    EXPECT_EQ(four->firstSon->prevBro->key, 7);
+    EXPECT_EQ(four->firstSon, C);
+
+    EXPECT_EQ(eight->firstSon, E);
+    EXPECT_EQ(eight->firstSon->nextBro, F);
+}
+
 // \todo TEST for marks
 // \todo TEST for decrease + extractMin should check if cachedMin != INT_MIN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

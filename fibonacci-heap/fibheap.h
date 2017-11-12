@@ -67,6 +67,8 @@ class FibonacciHeap {
 
     Logger log;
 
+    bool naive = false;
+
     FibNode* cachedMin = nullptr;
 
     FibNode* firstTree = nullptr;
@@ -139,7 +141,7 @@ class FibonacciHeap {
         // 6. consider parent's mark
         if (!parent->mark) {
             parent->mark = true;
-        } else if (parent->mark) {
+        } else if (parent->mark && naive == false) {
             cut(parent);
         }
     }

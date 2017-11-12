@@ -1,9 +1,13 @@
-//#include <gtest/gtest.h>
 #include <iostream>
-#include "fibheap.h"
 #include <string>
+#include "fibheap.h"
 
+//#define TESTS
 //#define VERBAL
+
+#ifdef TESTS
+#include <gtest/gtest.h>
+#endif
 
 void executeLine(const std::string& line, FibonacciHeap& heap) {
     if (line[0] == 'I') {
@@ -45,9 +49,10 @@ void executeLine(const std::string& line, FibonacciHeap& heap) {
     }
 }
 
-void run() {
+void run(bool naive) {
     std::string line;
     FibonacciHeap heap;
+    heap.naive = naive;
     while (std::getline(std::cin, line)) {
         executeLine(line, heap);
     }
@@ -55,11 +60,23 @@ void run() {
 }
 
 int main(int argc, char** argv) {
+#ifdef TESTS
     /// Google test
-    //::testing::InitGoogleTest(&argc, argv);
-    //RUN_ALL_TESTS();
+    ::testing::InitGoogleTest(&argc, argv);
+    RUN_ALL_TESTS();
+#endif
 
-    run();
-    argc, argv;
+    // Naive cutting?
+    bool naive;
+    if (argc > 1 && argv[1][0] == 'n') {
+        naive = true;
+        std::cout << "NAIVE CUTTING!\n";
+    } else {
+        naive = false;
+    }
+
+    // Execute
+    run(naive);
+
     return 0;
 }
