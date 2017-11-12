@@ -11,11 +11,11 @@
 
 class Logger {
    public:
-    int numberOfLogs = 0;
-    int cumulativeLog = 0;
-    int N = 0;
+    long long numberOfLogs = 0;
+    long long cumulativeLog = 0;
+    long long N = 0;
 
-    void logStep(int num) {
+    void logStep(long long num) {
         cumulativeLog += num;
     }
 
@@ -23,13 +23,13 @@ class Logger {
         numberOfLogs++;
     }
 
-    void rememberN(int rn) {
+    void rememberN(long long rn) {
         N = rn;
     }
 
-    float getAverage() const {
+    double getAverage() const {
         assert(numberOfLogs > 0);
-        return float(cumulativeLog) / float(numberOfLogs);
+        return double(cumulativeLog) / double(numberOfLogs);
     }
 
     void reset() {
@@ -37,7 +37,7 @@ class Logger {
         cumulativeLog = 0;
     }
 
-    bool init() {
+    bool init() const {
         return numberOfLogs > 0;
     }
 };
@@ -237,14 +237,9 @@ class FibonacciHeap {
                 FibNode* two = node->nextBro;
                 if (two->nextBro == one) {
                     boxes[currentBox] = nullptr;
-                    // std::cout << "del, first in " << currentBox << " is NULL\n";
                 } else {
                     boxes[currentBox] = two->nextBro;
-                    // std::cout << "del, first in " << currentBox << " is value "
-                    //          << boxes[currentBox]->key << "\n";
                 }
-                // std::cout << "Merged " << one->key << " with " << two->key << " put them in "
-                //          << currentBox + 1 << "\n";
                 deleteMyselfFromSons(one);
                 deleteMyselfFromSons(two);
                 boxes[currentBox + 1] = appendToList(boxes[currentBox + 1], heapMerge(one, two));
