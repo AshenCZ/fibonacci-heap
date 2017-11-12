@@ -1,8 +1,9 @@
-#include <gtest/gtest.h>
+//#include <gtest/gtest.h>
 #include <iostream>
 #include "fibheap.h"
+#include <string>
 
-#define VERBAL
+//#define VERBAL
 
 void executeLine(const std::string& line, FibonacciHeap& heap) {
     if (line[0] == 'I') {
@@ -53,13 +54,12 @@ void run() {
     std::cout << "N;" << heap.log.N << ";AVG;" << heap.log.getAverage() << ";\n";
 }
 
-int main(int argc, wchar_t** argv) {
+int main(int argc, char** argv) {
     /// Google test
-    ::testing::InitGoogleTest(&argc, argv);
-    RUN_ALL_TESTS();
+    //::testing::InitGoogleTest(&argc, argv);
+    //RUN_ALL_TESTS();
 
     run();
-
-    return 0;
     argc, argv;
+    return 0;
 }

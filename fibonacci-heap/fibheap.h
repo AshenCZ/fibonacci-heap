@@ -4,6 +4,7 @@
 #define HOJDAR_FIBHEAP_H
 
 #include <cassert>
+#include <limits>
 
 // \todo Remember to uncheck me!
 // #define NDEBUG
@@ -70,7 +71,8 @@ class FibonacciHeap {
 
     FibNode* firstTree = nullptr;
 
-    FibNode* maxVal = new FibNode(INT_MAX, INT_MAX);
+    FibNode* maxVal = new FibNode(std::numeric_limits<std::int32_t>::max(),
+                                  std::numeric_limits<std::int32_t>::max());
 
     int numberOfTrees = 0;
 
@@ -106,6 +108,9 @@ class FibonacciHeap {
         nextPtr->prevBro = prevPtr;
         if (x->parent && x->parent->firstSon == x) {
             x->parent->firstSon = nextPtr;
+            if (nextPtr == x) {
+                x->parent->firstSon = nullptr;
+            }
         }
         x->nextBro = x;
         x->prevBro = x;
@@ -182,7 +187,7 @@ class FibonacciHeap {
 
     static FibNode* heapMerge(FibNode* heap1, FibNode* heap2) {
         // dvojku privesime pod jednicku
-        if (heap1->key < heap2->key) {
+        if (heap1->key <= heap2->key) {
             heap1 = addSon(heap1, heap2);
             return heap1;
         } else if (heap1->key > heap2->key) {
@@ -267,7 +272,7 @@ class FibonacciHeap {
     /// \param newNode first is ID, second is KEY
     FibNode* insert(std::pair<int, int> newNode) {
         if (mapa[newNode.first] != nullptr) {
-            throw std::exception("Inserting multiple same IDs!");
+            assert(false);
         }
 
         FibNode* newTree = new FibNode(newNode.first, newNode.second);
@@ -281,8 +286,7 @@ class FibonacciHeap {
 
     int extractMin() {
         if (firstTree == nullptr) {
-            auto excp = std::exception("extract on empty heap");
-            throw excp;
+            assert(false);
         }
         FibNode* minElement = cachedMin;
         const int retValue = minElement->key;
@@ -339,9 +343,9 @@ class FibonacciHeap {
     }
 
     void deleteItem(int idToDelete) {
-        decrease(idToDelete, INT_MIN);
+        decrease(idToDelete, std::numeric_limits<std::int32_t>::min());
         int value = extractMin();
-        assert(value == INT_MIN);
+        assert(value == std::numeric_limits<std::int32_t>::min());
     }
 
     void reset() {
